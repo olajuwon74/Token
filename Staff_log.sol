@@ -10,13 +10,13 @@ pragma solidity ^0.8.0;
 
 // this is a proof existence for staffs of a company,
 // only the Hr Manager can onboard staffs, only the Hr manager can remove a staff
-// staffs have a leader board where they are ranked according to how they work hard, the Hr
-// is in charge of this also
 
-// Lets start cooking
+
+// Lets start cooking ):
 
 contract Proof_of_existence{
 
+    
     address owner;
     address Hr_manager;
     
@@ -27,13 +27,11 @@ contract Proof_of_existence{
          Hr_manager = _Hr_manager;
     }
 
+
+    // Only the CEO and Hr_manager can add a staff
+
     modifier higherOrder(){
         require(msg.sender == owner || msg.sender == Hr_manager,"You are not authorized to perform this task");
-        _;
-    }
-
-     modifier onlyCEO(){
-        require(msg.sender == owner,"You are not authorized to perform this task");
         _;
     }
 
@@ -43,29 +41,50 @@ contract Proof_of_existence{
         uint DOB;
         string qualification;
         string state;
-        uint Id;
     }
     
-    uint _Id;
-    Staff_details[] public staff_details;
-    
+    uint public Index;
+    mapping(uint => Staff_details)public Staff_infos;
 
-     mapping(uint => Staff_details)public Staff_Info;
+    function addStaff(string memory _name, uint _age, uint _DOB, string memory _qualification, string memory _state) public{
+        Staff_details storage staff = Staff_infos[Index];
+        staff.name = _name;
+        staff.age = _age;
+        staff.DOB = _DOB;
+        staff.qualification = _qualification;
+        staff.state = _state;
 
-    //  Staff_Info[Id]
-
-    function addStaff (string memory _name,uint _age, uint _DOB,string memory _qualification,string memory _state) public higherOrder {
-        _Id++;
-        staff_details.push(Staff_details(_name, _age, _DOB, _qualification, _state, _Id));
-        Staff_Info[_Id] = Staff_details(_name, _age, _DOB, _qualification, _state, _Id);
+        Index++;
     }
-   function deleteStaff(uint _id) public {
-       staff_details[_id];
-       for (uint i = _id; i < staff_details.length - 1 ; i++){
-           staff_details[i] = staff_details[i + 1];
-       }
-       staff_details.pop();
-   }
-         
+
+    function fetchStaffDetails(uint idNumber)public view returns(Staff_details memory info){
+        info = Staff_infos[idNumber];
+    }
+
+    function viewAllStaffs(uint staffAmount)public view returns(Staff_details[] memory all){
+        require(staffAmount <= Index, "wrong input");
+        all = new Staff_details[](staffAmount);
+        for(uint i = 0; i < staffAmount; i++){
+            all[i] = Staff_infos[i];
+        }
+        return all;
+    }
+     
+    function random() internal view returns(uint){
+       return uint (keccak256(abi.encodePacked(block.difficulty, block.timestamp, Index )));
+    }
+
+    function pickWinner()public view returns (uint){
+        uint luckyNumber = random() % Index;
+        return luckyNumber;
+    }
+    
+    function deleteStaff(uint _id)public{
+        _id == Index;
+        delete Staff_infos[Index];
+        
+        
+    }
+
 
 }
